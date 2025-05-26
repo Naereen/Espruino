@@ -19,7 +19,7 @@
 
 import pinutils;
 info = {
- 'name' : "Embedded Espruino",
+ 'name' : "Embedded Espruino for Numworks",
  'variables' :  16000, # this forces 14 byte variables
  'binary_name' : 'espruino_embedded.c',
  'build' : {
@@ -30,7 +30,6 @@ info = {
      'DEFINES+=-DUSE_CALLFUNCTION_HACK', # for now, just ensure we can be properly multiplatform
      'DEFINES+=-DJSVAR_MALLOC',
      'INCLUDE += -I$(ROOT)/libs/eadk',
-     'WRAPPERSOURCES += libs/eadk/eadk.h', # you can add more files here if your library depend on them
      'WRAPPERSOURCES += libs/eadk/jswrap_eadk.c', # you can add more files here if your library depend on them
    ]
  }
