@@ -6,6 +6,10 @@
 #include "../../bin/espruino_embedded.h"
 
 /** We have to define these */
+
+void jshKickSoftWatchDog() {
+}
+
 uint64_t ejs_get_microseconds() {
   struct timeval tm;
   gettimeofday(&tm, 0);
@@ -16,7 +20,7 @@ void ejs_print(const char *str) {
 }
 // ----------------------------------
 
-// 
+//
 int main() {
   ejs_create(1000);
   struct ejs* ejs[2];
@@ -34,7 +38,7 @@ int main() {
     instanceNumber = !instanceNumber; // toggle instance
     jsiConsolePrintf("=%v\n%d>", v, instanceNumber);
     jsvUnLock(v);
-  }  
+  }
 
   ejs_destroy_instance(ejs[0]);
   ejs_destroy_instance(ejs[1]);
