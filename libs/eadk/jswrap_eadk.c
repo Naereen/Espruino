@@ -17,6 +17,7 @@
 
 #include "eadk.h" // For all the NumWorks's EADK functions
 
+// #include <stdint.h>
 #include <stdbool.h>
 
 
@@ -177,7 +178,9 @@ void jswrap_backlight_set_brightness(int brightness) {
 Battery is charging?
 */
 bool jswrap_battery_is_charging(void) {
-    return eadk_battery_is_charging();
+    // FIXME: See https://github.com/numworks/epsilon/issues/2326
+    // return eadk_battery_is_charging();
+    return false;
 }
 
 // Now, we define the `jswrap_battery_level` to be a `staticmethod` on the `Eadk` class
@@ -191,7 +194,9 @@ bool jswrap_battery_is_charging(void) {
 Battery level (a uint8_t integer)
 */
 uint8_t jswrap_battery_level(void) {
-    return eadk_battery_level();
+    // FIXME: See https://github.com/numworks/epsilon/issues/2326{
+    // return eadk_battery_level();
+    return 0;
 }
 
 // Now, we define the `jswrap_battery_voltage` to be a `staticmethod` on the `Eadk` class
@@ -205,7 +210,9 @@ uint8_t jswrap_battery_level(void) {
 Battery voltage (a float value)
 */
 float jswrap_battery_voltage(void) {
-    return eadk_battery_voltage();
+    // FIXME: See https://github.com/numworks/epsilon/issues/2326
+    // return eadk_battery_voltage();
+    return 0.0f;
 }
 
 //
@@ -283,7 +290,9 @@ uint64_t jswrap_timing_millis() {
 Is the calculator plugged on USB?
 */
 bool jswrap_usb_is_plugged() {
-    return eadk_usb_is_plugged();
+    // FIXME: See https://github.com/numworks/epsilon/issues/2326
+    // return eadk_usb_is_plugged();
+    return false;
 }
 
 
