@@ -83,7 +83,8 @@ endif
 
 INCLUDE?=-I$(ROOT) -I$(ROOT)/targets -I$(ROOT)/src -I$(GENDIR)
 LIBS?=
-DEFINES?=
+DEFINES?= -DPLATFORM_DEVICE=1
+
 
 CFLAGS_C_COMPILER?= -Werror=implicit-function-declaration
 CFLAGS?=-Wall -Wextra -Wconversion -fno-strict-aliasing -g

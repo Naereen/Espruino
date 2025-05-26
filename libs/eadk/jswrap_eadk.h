@@ -13,10 +13,7 @@
 
 #include "eadk.h" // For all the NumWorks's EADK functions
 
-// Backlight
-
-int jswrap_backlight_brightness(void);
-void jswrap_set_backlight_brightness(int brightness);
+#include <stdbool.h>
 
 // Colors
 
@@ -25,3 +22,34 @@ int jswrap_color_white(void);
 int jswrap_color_red(void);
 int jswrap_color_green(void);
 int jswrap_color_blue(void);
+
+// Screen width and height
+
+int jswrap_SCREEN_WIDTH(void);
+int jswrap_SCREEN_HEIGHT(void);
+
+// Backlight
+
+int jswrap_backlight_brightness(void);
+void jswrap_backlight_set_brightness(int brightness);
+
+// Battery
+
+bool jswrap_battery_is_charging();
+uint8_t jswrap_battery_level();
+float jswrap_battery_voltage();
+
+// Display
+
+// void jswrap_display_draw_string(const char* text, uint16_t x, uint16_t y, bool large_font, uint16_t text_color, uint16_t background_color);
+
+// Timing
+
+void jswrap_timing_usleep(uint32_t us);
+void jswrap_timing_msleep(uint32_t ms);
+uint64_t jswrap_timing_millis();
+
+// Misc
+
+bool jswrap_usb_is_plugged();
+uint32_t jswrap_random();
