@@ -17,16 +17,16 @@
 
 // Colors
 
-int jswrap_color_black(void);
-int jswrap_color_white(void);
-int jswrap_color_red(void);
-int jswrap_color_green(void);
-int jswrap_color_blue(void);
+int16_t jswrap_color_black(void);
+int16_t jswrap_color_white(void);
+int16_t jswrap_color_red(void);
+int16_t jswrap_color_green(void);
+int16_t jswrap_color_blue(void);
 
 // Screen width and height
 
-int jswrap_SCREEN_WIDTH(void);
-int jswrap_SCREEN_HEIGHT(void);
+int32_t jswrap_SCREEN_WIDTH(void);
+int32_t jswrap_SCREEN_HEIGHT(void);
 
 // Backlight
 
@@ -42,6 +42,7 @@ float jswrap_battery_voltage();
 // Display
 
 // void jswrap_display_draw_string(const char* text, uint16_t x, uint16_t y, bool large_font, uint16_t text_color, uint16_t background_color);
+void jswrap_display_draw_string(JsVar *args);
 
 // Timing
 
