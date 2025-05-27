@@ -177,9 +177,9 @@ void jswrap_backlight_set_brightness(int brightness) {
   "return" : ["bool", "Battery is charging?"]
 }
 Battery is charging?
+FIXME: this function is absent from the hardware, we try to simulate its behavior by a SVC_... call. See https://github.com/numworks/epsilon/issues/2326
 */
 bool jswrap_battery_is_charging(void) {
-    // FIXME: See https://github.com/numworks/epsilon/issues/2326
     // return eadk_battery_is_charging();
     // return false;
     SVC_RETURNING_R0(SVC_BATTERY_IS_CHARGING, bool)
@@ -194,9 +194,9 @@ bool jswrap_battery_is_charging(void) {
   "return" : ["int", "Battery level (a uint8_t integer)"]
 }
 Battery level (a uint8_t integer)
+FIXME: this function is absent from the hardware, we try to simulate its behavior by a SVC_... call. See https://github.com/numworks/epsilon/issues/2326{
 */
 uint8_t jswrap_battery_level(void) {
-    // FIXME: See https://github.com/numworks/epsilon/issues/2326{
     // return eadk_battery_level();
     // return 0;
     SVC_RETURNING_R0(SVC_BATTERY_LEVEL, uint8_t)
@@ -211,9 +211,9 @@ uint8_t jswrap_battery_level(void) {
   "return" : ["float", "Battery voltage (a float value)"]
 }
 Battery voltage (a float value)
+FIXME: this function is absent from the hardware, we try to simulate its behavior by a SVC_... call. See https://github.com/numworks/epsilon/issues/2326
 */
 float jswrap_battery_voltage(void) {
-    // FIXME: See https://github.com/numworks/epsilon/issues/2326
     // return eadk_battery_voltage();
     // return 0.0f;
     SVC_RETURNING_R0(SVC_BATTERY_VOLTAGE, float)
@@ -223,7 +223,8 @@ float jswrap_battery_voltage(void) {
 // Display
 //
 
-// TODO: find a way to have a function accept a `char*` parameter
+// FIXME: this jswrap_display_draw_string() function works but is buggued, I need to fix it!
+// See: https://github.com/Naereen/A-JavaScript-interpreter-for-the-NumWorks-calculator/issues/1#issuecomment-2910837059
 
 // Now, we define the `jswrap_display_draw_string` to be a `staticmethod` on the `Eadk` class
 /*JSON{
@@ -240,57 +241,61 @@ Display a given text string, at a {x,y} position, in large/small font, with text
 For instance:
 Eadk.display_draw_string(text, x, y, large, text_color, background_color);
 */
-// The C function signature must now be the standard JsVarArray one
 void jswrap_display_draw_string(JsVar *args) {
     int argc = jsvGetArrayLength(args);
     // Basic argument count validation
     if (argc < 6) { // Expecting at least 6 arguments
-        jsError("Arg error: too few args (%i)", argc);
         return;
     }
     // You might also want to check for too many arguments depending on strictness
 
     // 1. Get 'text' (JsVar -> const char*)
-    if (!jsvIsString(jsvGetArrayItem(args, 0))) {
-        jsError("Arg error: bad arg type [0]");
+    JsVar *textJsVar = jsvGetArrayItem(args, 0);
+    if (!jsvIsString(textJsVar)) {
+        jsError("Eadk.display_draw_string: Arg[0] (text) must be a string.");
         return;
     }
-    const char* text = jsvAsString(jsvGetArrayItem(args, 0));
+    const char* text = jsvAsString(textJsVar);
 
     // 2. Get 'x' (JsVar -> uint16_t)
-    if (!jsvIsInt(jsvGetArrayItem(args, 1))) {
-        jsError("Arg error: bad arg type [1]");
+    JsVar *xJsVar = jsvGetArrayItem(args, 1);
+    if (!jsvIsInt(xJsVar)) {
+        jsError("Eadk.display_draw_string: Arg[1] (x) must be an integer.");
         return;
     }
-    uint16_t x = (uint16_t)jsvGetInteger(jsvGetArrayItem(args, 1));
+    uint16_t x = (uint16_t)jsvGetInteger(xJsVar);
 
     // 3. Get 'y' (JsVar -> uint16_t)
-    if (!jsvIsInt(jsvGetArrayItem(args, 2))) {
-        jsError("Arg error: bad arg type [2]");
+    JsVar *yJsVar = jsvGetArrayItem(args, 2);
+    if (!jsvIsInt(yJsVar)) {
+        jsError("Eadk.display_draw_string: Arg[2] (y) must be an integer.");
         return;
     }
-    uint16_t y = (uint16_t)jsvGetInteger(jsvGetArrayItem(args, 2));
+    uint16_t y = (uint16_t)jsvGetInteger(yJsVar);
 
     // 4. Get 'large_font' (JsVar -> bool)
-    if (!jsvIsInt(jsvGetArrayItem(args, 3))) { // Or jsvIsInt if bools are treated as ints (0/1)
-        jsError("Arg error: bad arg type [3]");
+    JsVar *large_fontJsVar = jsvGetArrayItem(args, 3);
+    if (!jsvIsInt(large_fontJsVar)) { // Or jsvIsInt if bools are treated as ints (0/1)
+        jsError("Eadk.display_draw_string: Arg[3] (large_font) must be an integer.");
         return;
     }
-    bool large_font = jsvGetBool(jsvGetArrayItem(args, 3));
+    bool large_font = jsvGetBool(large_fontJsVar);
 
     // 5. Get 'text_color' (JsVar -> uint16_t - assuming eadk_color_t is uint16_t)
-    if (!jsvIsInt(jsvGetArrayItem(args, 4))) {
-        jsError("Arg error: bad arg type [4]");
+    JsVar *text_colorJsVar = jsvGetArrayItem(args, 4);
+    if (!jsvIsInt(text_colorJsVar)) {
+        jsError("Eadk.display_draw_string: Arg[4] (text_color) must be an integer.");
         return;
     }
-    uint16_t text_color = (uint16_t)jsvGetInteger(jsvGetArrayItem(args, 4));
+    uint16_t text_color = (uint16_t)jsvGetInteger(text_colorJsVar);
 
     // 6. Get 'background_color' (JsVar -> uint16_t - assuming eadk_color_t is uint16_t)
-    if (!jsvIsInt(jsvGetArrayItem(args, 5))) {
-        jsError("Arg error: bad arg type [5]");
+    JsVar *background_colorJsVar = jsvGetArrayItem(args, 5);
+    if (!jsvIsInt(background_colorJsVar)) {
+        jsError("Eadk.display_draw_string: Arg[5] (background_color) must be an integer.");
         return;
     }
-    uint16_t background_color = (uint16_t)jsvGetInteger(jsvGetArrayItem(args, 5));
+    uint16_t background_color = (uint16_t)jsvGetInteger(background_colorJsVar);
 
     // Call the eadk function
     eadk_display_draw_string(text, (eadk_point_t){x, y}, large_font, (eadk_color_t)text_color, (eadk_color_t)background_color);
@@ -298,10 +303,98 @@ void jswrap_display_draw_string(JsVar *args) {
     return;
 }
 
+
+// Now, we define the `jswrap_display_push_rect_uniform` to be a `staticmethod` on the `Eadk` class
+/*JSON{
+  "type" : "staticmethod",
+  "class" : "Eadk",
+  "name" : "display_push_rect_uniform",
+  "generate" : "jswrap_display_push_rect_uniform",
+  "params": [
+    ["args", "JsVarArray", "x, y, width, height, color"]
+  ]
+}
+Fills a rectangle on the display with a uniform color.
+This can also be used to draw a single pixel by setting width and height to 1.
+
+    x: X coordinate of the top-left corner
+    y: Y coordinate of the top-left corner
+    width: Width of the rectangle
+    height: Height of the rectangle
+    color: Color of the rectangle (e.g., 0xFFFF for white, 0xF800 for red)
+
+For instance:
+Eadk.display_push_rect_uniform(0, 0, 10, 20, 0xF800); // Fills a 10x20 red rectangle at (0,0)
+Eadk.display_push_rect_uniform(50, 50, 1, 1, 0x07E0); // Draws a single green pixel at (50,50)
+*/
+void jswrap_display_push_rect_uniform(JsVar *args) {
+    int argc = jsvGetArrayLength(args);
+
+    // Basic argument count validation
+    if (argc < 5) { // Expecting 5 arguments: x, y, width, height, color
+        jsError("Eadk.display_fill_rect: Too few arguments (%i). Expected 5.", argc);
+        return;
+    }
+
+    // 1. Get 'x' (JsVar -> uint16_t)
+    JsVar *xJsVar = jsvGetArrayItem(args, 0);
+    if (!jsvIsInt(xJsVar)) {
+        jsError("Eadk.display_fill_rect: Arg[0] (x) must be an integer.");
+        return;
+    }
+    uint16_t x = (uint16_t)jsvGetInteger(xJsVar);
+
+    // 2. Get 'y' (JsVar -> uint16_t)
+    JsVar *yJsVar = jsvGetArrayItem(args, 1);
+    if (!jsvIsInt(yJsVar)) {
+        jsError("Eadk.display_fill_rect: Arg[1] (y) must be an integer.");
+        return;
+    }
+    uint16_t y = (uint16_t)jsvGetInteger(yJsVar);
+
+    // 3. Get 'width' (JsVar -> uint16_t)
+    JsVar *widthJsVar = jsvGetArrayItem(args, 2);
+    if (!jsvIsInt(widthJsVar)) {
+        jsError("Eadk.display_fill_rect: Arg[2] (width) must be an integer.");
+        return;
+    }
+    uint16_t width = (uint16_t)jsvGetInteger(widthJsVar);
+
+    // 4. Get 'height' (JsVar -> uint16_t)
+    JsVar *heightJsVar = jsvGetArrayItem(args, 3);
+    if (!jsvIsInt(heightJsVar)) {
+        jsError("Eadk.display_fill_rect: Arg[3] (height) must be an integer.");
+        return;
+    }
+    uint16_t height = (uint16_t)jsvGetInteger(heightJsVar);
+
+    // 5. Get 'color' (JsVar -> uint16_t - assuming eadk_color_t is uint16_t)
+    JsVar *colorJsVar = jsvGetArrayItem(args, 4);
+    if (!jsvIsInt(colorJsVar)) {
+        jsError("Eadk.display_fill_rect: Arg[4] (color) must be an integer.");
+        return;
+    }
+    uint16_t color = (uint16_t)jsvGetInteger(colorJsVar);
+
+    // Construct the eadk_rect_t struct
+    eadk_rect_t rect = { .x = x, .y = y, .width = width, .height = height };
+
+    // Call the eadk function
+    eadk_display_push_rect_uniform(rect, (eadk_color_t)color);
+
+    // Return from void function (as per previous success with draw_string)
+    return;
+}
+
+
+// void jswrap_display_push_rect(JsVar *args);
+// void jswrap_display_pull_rect(JsVar *args);
+// bool jswrap_display_wait_for_vblank();
+
+
 //
 // Timing
 //
-
 
 // Now, we define the `jswrap_timing_usleep` to be a `staticmethod` on the `Eadk` class
 /*JSON{
@@ -343,18 +436,18 @@ void jswrap_timing_msleep(uint32_t ms) {
   "class" : "Eadk",
   "name" : "timing_millis",
   "generate" : "jswrap_timing_millis",
-  "return" : ["int", "Time since boot of the machine? Not clear. FIXME:"]
+  "return" : ["int", "Time since boot of the machine, in milliseconds?"]
 }
-Time since boot of the machine? Not clear. FIXME:
+Time since boot of the machine, in milliseconds?
 */
 uint64_t jswrap_timing_millis() {
     return eadk_timing_millis();
 }
 
+
 //
 // Misc
 //
-
 
 // Now, we define the `jswrap_usb_is_plugged` to be a `staticmethod` on the `Eadk` class
 /*JSON{
@@ -365,9 +458,9 @@ uint64_t jswrap_timing_millis() {
   "return" : ["bool", "Is the calculator plugged on USB?"]
 }
 Is the calculator plugged on USB?
+FIXME: this function is absent from the hardware, we try to simulate its behavior by a SVC_... call. See https://github.com/numworks/epsilon/issues/2326
 */
 bool jswrap_usb_is_plugged() {
-    // FIXME: See https://github.com/numworks/epsilon/issues/2326
     // return eadk_usb_is_plugged();
     // return false;
     SVC_RETURNING_R0(SVC_USB_IS_PLUGGED, bool)
@@ -385,5 +478,5 @@ bool jswrap_usb_is_plugged() {
 An almost truly random number, generated from the hardware RNG (a uint32_t)
 */
 uint32_t jswrap_random() {
-    return eadk_random();
+    return (uint32_t) eadk_random();
 }

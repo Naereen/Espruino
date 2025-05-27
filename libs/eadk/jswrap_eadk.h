@@ -41,8 +41,12 @@ float jswrap_battery_voltage();
 
 // Display
 
-// void jswrap_display_draw_string(const char* text, uint16_t x, uint16_t y, bool large_font, uint16_t text_color, uint16_t background_color);
 void jswrap_display_draw_string(JsVar *args);
+void jswrap_display_push_rect_uniform(JsVar *args);
+
+// void jswrap_display_push_rect(JsVar *args);
+// void jswrap_display_pull_rect(JsVar *args);
+// bool jswrap_display_wait_for_vblank();
 
 // Timing
 
