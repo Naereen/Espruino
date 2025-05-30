@@ -249,18 +249,10 @@ void jswrap_display_draw_string(JsVar *args) {
     }
     // You might also want to check for too many arguments depending on strictness
 
-    // 1. Get 'text' (JsVar -> const char*)
-    JsVar *textJsVar = jsvGetArrayItem(args, 0);
-    if (!jsvIsString(textJsVar)) {
-        jsError("Eadk.display_draw_string: Arg[0] (text) must be a string.");
-        return;
-    }
-    const char* text = jsvAsString(textJsVar);
-
     // 2. Get 'x' (JsVar -> uint16_t)
     JsVar *xJsVar = jsvGetArrayItem(args, 1);
     if (!jsvIsInt(xJsVar)) {
-        jsError("Eadk.display_draw_string: Arg[1] (x) must be an integer.");
+        jsError("Eadk.display_draw_string: Arg[1] (x) must be integer.");
         return;
     }
     uint16_t x = (uint16_t)jsvGetInteger(xJsVar);
@@ -268,7 +260,7 @@ void jswrap_display_draw_string(JsVar *args) {
     // 3. Get 'y' (JsVar -> uint16_t)
     JsVar *yJsVar = jsvGetArrayItem(args, 2);
     if (!jsvIsInt(yJsVar)) {
-        jsError("Eadk.display_draw_string: Arg[2] (y) must be an integer.");
+        jsError("Eadk.display_draw_string: Arg[2] (y) must be integer.");
         return;
     }
     uint16_t y = (uint16_t)jsvGetInteger(yJsVar);
@@ -276,7 +268,7 @@ void jswrap_display_draw_string(JsVar *args) {
     // 4. Get 'large_font' (JsVar -> bool)
     JsVar *large_fontJsVar = jsvGetArrayItem(args, 3);
     if (!jsvIsInt(large_fontJsVar)) { // Or jsvIsInt if bools are treated as ints (0/1)
-        jsError("Eadk.display_draw_string: Arg[3] (large_font) must be an integer.");
+        jsError("Eadk.display_draw_string: Arg[3] (large_font) must be integer.");
         return;
     }
     bool large_font = jsvGetBool(large_fontJsVar);
@@ -284,7 +276,7 @@ void jswrap_display_draw_string(JsVar *args) {
     // 5. Get 'text_color' (JsVar -> uint16_t - assuming eadk_color_t is uint16_t)
     JsVar *text_colorJsVar = jsvGetArrayItem(args, 4);
     if (!jsvIsInt(text_colorJsVar)) {
-        jsError("Eadk.display_draw_string: Arg[4] (text_color) must be an integer.");
+        jsError("Eadk.display_draw_string: Arg[4] (text_color) must be integer.");
         return;
     }
     uint16_t text_color = (uint16_t)jsvGetInteger(text_colorJsVar);
@@ -292,10 +284,35 @@ void jswrap_display_draw_string(JsVar *args) {
     // 6. Get 'background_color' (JsVar -> uint16_t - assuming eadk_color_t is uint16_t)
     JsVar *background_colorJsVar = jsvGetArrayItem(args, 5);
     if (!jsvIsInt(background_colorJsVar)) {
-        jsError("Eadk.display_draw_string: Arg[5] (background_color) must be an integer.");
+        jsError("Eadk.display_draw_string: Arg[5] (background_color) must be integer.");
         return;
     }
     uint16_t background_color = (uint16_t)jsvGetInteger(background_colorJsVar);
+
+    // 1. Get 'text' (JsVar -> const char*)
+    JsVar *textJsVar = jsvGetArrayItem(args, 0);
+    if (!jsvIsString(textJsVar)) {
+        printf("Eadk.display_draw_string: Arg[0] (text) must be a string.");
+        return;
+    }
+    // FIXED: this handling of the string was bugged
+    // const char* text = jsvAsString(textJsVar); // Lock the string, so it is not garbage collected
+
+    // We will copy the string into a local buffer, to ensure it is not garbage collected
+    // and to ensure we can handle it properly, as the eadk_display_draw_string expects a C string
+    size_t max_len = 31; // Updated maximum length to 31 characters for the text
+    if (large_font == false) {
+        max_len = 63; // If small font, we double the maximum length
+    }
+    char text[max_len + 1]; // Local buffer to hold the string, size max_len + 1 to allow for null-termination
+    // We will use jsvGetStringChars to copy the string into our local buffer
+    size_t len_of_text = jsvGetStringChars(textJsVar, 0, text, max_len);
+    text[len_of_text] = '\0'; // Ensure the string is null-terminated
+    // printf("Eadk.display_draw_string: text='%s'\n", text);
+    if (len_of_text >= max_len) {
+        printf("Eadk.display_draw_string: Arg[0] too long, %i >= max %i characters.", len_of_text, max_len);
+        return;
+    }
 
     // Call the eadk function
     eadk_display_draw_string(text, (eadk_point_t){x, y}, large_font, (eadk_color_t)text_color, (eadk_color_t)background_color);
@@ -338,43 +355,54 @@ void jswrap_display_push_rect_uniform(JsVar *args) {
 
     // 1. Get 'x' (JsVar -> uint16_t)
     JsVar *xJsVar = jsvGetArrayItem(args, 0);
+    uint16_t x = (uint16_t) 0;
     if (!jsvIsInt(xJsVar)) {
-        jsError("Eadk.display_fill_rect: Arg[0] (x) must be an integer.");
-        return;
+        printf("Eadk.display_fill_rect: Arg[0] (x) must be integer.");
+        // return;
+    } else {
+        x = (uint16_t)jsvGetInteger(xJsVar);
     }
-    uint16_t x = (uint16_t)jsvGetInteger(xJsVar);
 
     // 2. Get 'y' (JsVar -> uint16_t)
     JsVar *yJsVar = jsvGetArrayItem(args, 1);
+    uint16_t y = (uint16_t) 0;
     if (!jsvIsInt(yJsVar)) {
-        jsError("Eadk.display_fill_rect: Arg[1] (y) must be an integer.");
-        return;
+        printf("Eadk.display_fill_rect: Arg[1] (y) must be integer.");
+        // return;
+    } else {
+        y = (uint16_t)jsvGetInteger(yJsVar);
     }
-    uint16_t y = (uint16_t)jsvGetInteger(yJsVar);
 
     // 3. Get 'width' (JsVar -> uint16_t)
     JsVar *widthJsVar = jsvGetArrayItem(args, 2);
+    uint16_t width = (uint16_t) 1;
     if (!jsvIsInt(widthJsVar)) {
-        jsError("Eadk.display_fill_rect: Arg[2] (width) must be an integer.");
-        return;
+        printf("Eadk.display_fill_rect: Arg[2] (width) must be integer.");
+        // return;
+    } else {
+        width = (uint16_t)jsvGetInteger(widthJsVar);
     }
-    uint16_t width = (uint16_t)jsvGetInteger(widthJsVar);
 
     // 4. Get 'height' (JsVar -> uint16_t)
     JsVar *heightJsVar = jsvGetArrayItem(args, 3);
+    uint16_t height = (uint16_t) 1;
     if (!jsvIsInt(heightJsVar)) {
-        jsError("Eadk.display_fill_rect: Arg[3] (height) must be an integer.");
-        return;
+        printf("Eadk.display_fill_rect: Arg[3] (height) must be integer.");
+        // return;
+    } else {
+        height = (uint16_t)jsvGetInteger(heightJsVar);
     }
-    uint16_t height = (uint16_t)jsvGetInteger(heightJsVar);
 
     // 5. Get 'color' (JsVar -> uint16_t - assuming eadk_color_t is uint16_t)
     JsVar *colorJsVar = jsvGetArrayItem(args, 4);
+    uint16_t color = (uint16_t) eadk_color_black; // Default to black if not provided
     if (!jsvIsInt(colorJsVar)) {
-        jsError("Eadk.display_fill_rect: Arg[4] (color) must be an integer.");
-        return;
+        printf("Eadk.display_fill_rect: Arg[4] (color) must be integer.\n");
+        // return;
+    } else {
+        // If the color is provided, we convert it to uint16_t
+        color = (uint16_t)jsvGetInteger(colorJsVar);
     }
-    uint16_t color = (uint16_t)jsvGetInteger(colorJsVar);
 
     // Construct the eadk_rect_t struct
     eadk_rect_t rect = { .x = x, .y = y, .width = width, .height = height };
@@ -386,10 +414,24 @@ void jswrap_display_push_rect_uniform(JsVar *args) {
     return;
 }
 
-
+// TODO: write these
 // void jswrap_display_push_rect(JsVar *args);
 // void jswrap_display_pull_rect(JsVar *args);
-// bool jswrap_display_wait_for_vblank();
+
+
+// Now, we define the `jswrap_display_wait_for_vblank` to be a `staticmethod` on the `Eadk` class
+/*JSON{
+  "type" : "staticmethod",
+  "class" : "Eadk",
+  "name" : "display_wait_for_vblank",
+  "generate" : "jswrap_display_wait_for_vblank",
+  "return" : ["bool", "Display: wait for vblank? It is not documented in eadk.h so not documented here (we don't really know what it does)"]
+}
+Display: wait for vblank? It is not documented in eadk.h so not documented here (we don't really know what it does)
+*/
+bool jswrap_display_wait_for_vblank(void) {
+    return eadk_display_wait_for_vblank();
+}
 
 
 //
@@ -440,7 +482,7 @@ void jswrap_timing_msleep(uint32_t ms) {
 }
 Time since boot of the machine, in milliseconds?
 */
-uint64_t jswrap_timing_millis() {
+uint64_t jswrap_timing_millis(void) {
     return eadk_timing_millis();
 }
 
@@ -460,7 +502,7 @@ uint64_t jswrap_timing_millis() {
 Is the calculator plugged on USB?
 FIXME: this function is absent from the hardware, we try to simulate its behavior by a SVC_... call. See https://github.com/numworks/epsilon/issues/2326
 */
-bool jswrap_usb_is_plugged() {
+bool jswrap_usb_is_plugged(void) {
     // return eadk_usb_is_plugged();
     // return false;
     SVC_RETURNING_R0(SVC_USB_IS_PLUGGED, bool)
@@ -477,6 +519,6 @@ bool jswrap_usb_is_plugged() {
 }
 An almost truly random number, generated from the hardware RNG (a uint32_t)
 */
-uint32_t jswrap_random() {
+uint32_t jswrap_random(void) {
     return (uint32_t) eadk_random();
 }

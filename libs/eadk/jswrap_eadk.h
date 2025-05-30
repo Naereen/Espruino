@@ -35,9 +35,9 @@ void jswrap_backlight_set_brightness(int brightness);
 
 // Battery
 
-bool jswrap_battery_is_charging();
-uint8_t jswrap_battery_level();
-float jswrap_battery_voltage();
+bool jswrap_battery_is_charging(void);
+uint8_t jswrap_battery_level(void);
+float jswrap_battery_voltage(void);
 
 // Display
 
@@ -46,15 +46,15 @@ void jswrap_display_push_rect_uniform(JsVar *args);
 
 // void jswrap_display_push_rect(JsVar *args);
 // void jswrap_display_pull_rect(JsVar *args);
-// bool jswrap_display_wait_for_vblank();
+bool jswrap_display_wait_for_vblank(void);
 
 // Timing
 
 void jswrap_timing_usleep(uint32_t us);
 void jswrap_timing_msleep(uint32_t ms);
-uint64_t jswrap_timing_millis();
+uint64_t jswrap_timing_millis(void);
 
 // Misc
 
-bool jswrap_usb_is_plugged();
-uint32_t jswrap_random();
+bool jswrap_usb_is_plugged(void);
+uint32_t jswrap_random(void);
